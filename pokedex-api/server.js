@@ -1,22 +1,24 @@
-const express = require("express");
+import express from "express";
+import "dotenv/config";
+import config from "./src/config/config.js";
+import mongoConnection from "./src/config/mongoConfig.js";
+import pokemonRouter from "./src/routes/pokemonRouter.js";
+
 const app = express();
-const port = 3000;
+const port = config.port;
 
 app.get("/", (req, res) => {
   res.json({ message: "Pokedex API! Get Pokemon Details" });
 });
 
-app.get("/pokemon/:name", (req, res) => {
-  const pokemonName = req.params.name;
-  // Simulate fetching Pokemon data
-  const pokemonData = {
-    name: pokemonName,
-    type: "Fire",
-    abilities: ["Flame Body", "Flash Fire"],
-  };
-  res.json(pokemonData);
-});
+app.use("/pokemon", pokemonRouter);
 
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
-});
+mongoConnection()
+  .then(() => {
+    app.listen(port, () => {
+      console.log(`Server listening on port ${port}`);
+    });
+  })
+  .catch((err) => {
+    console.log(err);
+  });
